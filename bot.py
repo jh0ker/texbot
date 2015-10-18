@@ -7,6 +7,7 @@ import os
 import traceback
 import glob
 import shutil
+import pickledb
 
 # Configuration
 BOTNAME = 'examplebot'  # The name of the bot, without @
@@ -32,6 +33,9 @@ app = Flask(__name__)
 
 global bot
 bot = telegram.Bot(token=TOKEN)
+
+global db
+db = pickledb.load('bot.db', True)
 
 global tex
 tex = '\\documentclass[12pt]{article} \\pagestyle{empty} \\begin{document} \\begin{displaymath} %s \\end{displaymath} \\end{document}'
@@ -59,6 +63,7 @@ def convert(update):
     if len(text) < 2:
         return help(update)
     
+    # Check if this chat gets files or photos
     ftype = db.get(chat_id)
     if ftype is None:
         ftype = 'P'
@@ -104,7 +109,7 @@ def convert(update):
         shutil.rmtree(dname)
         return 'ok'
 
-# Print help text
+# This chat gets photos!
 def as_photo(update):
     chat_id = update.message.chat.id
     
@@ -114,7 +119,7 @@ def as_photo(update):
     
     return 'ok'
     
-# Print help text
+# This chat gets files!
 def as_file(update):
     chat_id = update.message.chat.id
     
