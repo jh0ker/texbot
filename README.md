@@ -2,7 +2,7 @@
 #### A Python Telegram Bot that converts LaTeX markup into an image
 
 It uses the Flask microframework and the [python-telegram-bot](https://github.com/leandrotoledo/python-telegram-bot) library. 
-It's based on this [example](https://github.com/sooyhwang/Simple-Echo-Telegram-Bot) and uses a slightly modified version of [this perl script](http://www.fourmilab.ch/webtools/textogif/)
+It's based on this [example](https://github.com/sooyhwang/Simple-Echo-Telegram-Bot), uses a slightly modified version of [this perl script](http://www.fourmilab.ch/webtools/textogif/) and [pickledb](https://bitbucket.org/patx/pickledb) for basic persistence.
 
 The file is prepared to be run by anyone by filling out the blanks in the configuration. The bot currently runs on [@jh0ker_texbot](https://telegram.me/jh0ker_texbot)
 
