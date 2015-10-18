@@ -7,7 +7,7 @@ import os
 import traceback
 import glob
 import shutil
-import pickledb
+import python3pickledb as pickledb
 
 # Configuration
 BOTNAME = 'examplebot'  # The name of the bot, without @
@@ -64,11 +64,9 @@ def convert(update):
         return help(update)
     
     # Check if this chat gets files or photos
-    ftype = db.get(chat_id)
-    if ftype is None:
-        ftype = 'P'
-    
-    photo = (ftype == 'P')
+    photo = db.get(str(chat_id))
+    if photo is None:
+        photo = True
     
     # Construct latex code
     latex = tex % ' '.join(text[1:])
@@ -113,7 +111,7 @@ def convert(update):
 def as_photo(update):
     chat_id = update.message.chat.id
     
-    db.set(chat_id, 'P')
+    db.set(str(chat_id), True)
     
     bot.sendMessage(chat_id=chat_id, text='Got it!')
     
@@ -123,7 +121,7 @@ def as_photo(update):
 def as_file(update):
     chat_id = update.message.chat.id
     
-    db.set(chat_id, 'F')
+    db.set(str(chat_id), False)
     
     bot.sendMessage(chat_id=chat_id, text='Got it!')
     
