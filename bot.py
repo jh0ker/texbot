@@ -45,6 +45,7 @@ helptext += 'Questions? Message my creator @jh0ker'
 # Converting function
 def convert(update):
     chat_id = update.message.chat.id
+    bot.sendChatAction(chat_id=chat_id, action=telegram.ChatAction.TYPING)
     
     # Only allow X concurrent conversions
     if len(glob.glob(os.path.join(WORK_LOC, '*'))) > MAX_CONVERSIONS:
@@ -58,6 +59,12 @@ def convert(update):
     if len(text) < 2:
         return help(update)
     
+    ftype = db.get(chat_id)
+    if ftype is None:
+        ftype = 'P'
+    
+    photo = (ftype == 'P')
+    
     # Construct latex code
     latex = tex % ' '.join(text[1:])
     
@@ -65,7 +72,7 @@ def convert(update):
     dname = hex(int(time() * 10000000))[2:] 
     dname = os.path.join(WORK_LOC, dname)
     finname = os.path.join(dname, 'code.tex')
-    foutname = os.path.join(dname, 'code.png')
+    foutname = os.path.join(dname, ('code.jpg' if photo else 'code.png'))
     
     os.makedirs(dname)
     
@@ -75,10 +82,13 @@ def convert(update):
         fin.close()
         
         # Run perl script
-        command = 'cd %s; %s -png -dpi 400 -res 0.50 code.tex > /dev/null 2> /dev/null' % (dname, EXE_LOC)
+        command = 'cd %s; %s -png -dpi 400 -res 0.50 code.tex > /dev/null 2> /dev/null%s' % (dname, EXE_LOC, ('; convert code.png code.jpg' if photo else ''))
         os.system(command)
         
-        bot.sendDocument(chat_id=chat_id, document=open(foutname, 'rb'), filename='LaTeX.png', reply_to_message_id=update.message.message_id)
+        if photo:
+            bot.sendPhoto(chat_id=chat_id, photo=open(foutname, 'rb'), reply_to_message_id=update.message.message_id)
+        else:
+            bot.sendDocument(chat_id=chat_id, document=open(foutname, 'rb'), filename='LaTeX.png', reply_to_message_id=update.message.message_id)
         
     # In case anything fails, send error message
     except Exception as e:
@@ -93,7 +103,28 @@ def convert(update):
         # Clean up
         shutil.rmtree(dname)
         return 'ok'
-        
+
+# Print help text
+def as_photo(update):
+    chat_id = update.message.chat.id
+    
+    db.set(chat_id, 'P')
+    
+    bot.sendMessage(chat_id=chat_id, text='Got it!')
+    
+    return 'ok'
+    
+# Print help text
+def as_file(update):
+    chat_id = update.message.chat.id
+    
+    db.set(chat_id, 'F')
+    
+    bot.sendMessage(chat_id=chat_id, text='Got it!')
+    
+    return 'ok'
+            
+
 # Print help text
 def help(update):
     chat_id = update.message.chat.id
@@ -118,9 +149,18 @@ def tg_webhook_handler():
         # Bot was invited to a group chat or received an empty message
         if update.message.new_chat_participant is not None and update.message.new_chat_participant.username == BOTNAME or len(text) is 0:
             return help(update)
+            
+        # Text is empty
+        elif len(text) is 0:
+            return 'ok'
+            
         # Run commands
         elif text[0] == '/tex':
             return convert(update)
+        elif text[0] == '/photo':
+            return as_photo(update)
+        elif text[0] == '/file':
+            return as_file(update)
         elif text[0] == '/help' or text[0] == '/start':
             return help(update)
             
@@ -140,7 +180,7 @@ def set_webhook():
 @app.route('/')
 def index():
     return 'Texbot is running!'
-    
+        
 # Start Flask with SSL handling
 #app.run(host=HOST,port=PORT, ssl_context=CONTEXT, threaded=True, debug=False)
 

@@ -10,6 +10,8 @@ The file is prepared to be run by anyone by filling out the blanks in the config
 * Python 3.4 (may work with earlier versions, untested)
 * [python-telegram-bot](https://github.com/leandrotoledo/python-telegram-bot) module (tested with version 2.8.7)
 * [Flask](http://flask.pocoo.org/) microframework (tested with version 0.10.1)
+* [pickleDB](https://pythonhosted.org/pickleDB/) module (tested with version 0.4)
+* [simplejson](https://pypi.python.org/pypi/simplejson/) module as a dependency of pickleDB (tested with version 3.8.0)
 
 You also need to fulfill the perl scripts' requirements, found at the bottom of [it's page at fourmilab.ch](http://www.fourmilab.ch/webtools/textogif/)
 
